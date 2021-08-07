@@ -1,7 +1,5 @@
-import os
 import argparse
-import stegowriter
-import stegoread
+from StegoLogic import stegoread, stegowriter
 
 # select read mode or write mode
 parser = argparse.ArgumentParser(description="Does some steganography.")
