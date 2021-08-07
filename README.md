@@ -3,6 +3,7 @@ Hide data inside ANY audio file using steganography. Fundamentally, audio is rep
 
 # SETUP
 ## Download the Kaggle Dataset (1000 songs): https://www.kaggle.com/andradaolteanu/gtzan-dataset-music-genre-classification
+(Or use provided example file)
 ## Install pipenv: https://pypi.org/project/pipenv/
 ## Hide your message(s) in the song(s)
 ## ...
