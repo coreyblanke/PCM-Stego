@@ -1,26 +1,16 @@
-import librosa
 import os
+import argparse
+import stegowriter
+import stegoread
 
-# Music samples from: https://www.kaggle.com/andradaolteanu/gtzan-dataset-music-genre-classification
-SONGFILES = []
+# select read mode or write mode
+parser = argparse.ArgumentParser(description="Does some steganography.")
+parser.add_argument('mode', type=str, help="Select read or write mode.", choices=['r', 'w'])
 
-
-# list the .wav(s)
-for folder in os.listdir('./data'):
-    songs = len(os.listdir(f'./data/{folder}'))
-    print(f'Genre: {folder} Quantity: {songs}')
-    for file in os.listdir(f'./data/{folder}'):
-        SONGFILES.append(f'./data/{folder}/{file}')
-
-print(f'\nTotal: {len(SONGFILES)}')
+args = parser.parse_args()
 
 
-# loop frame by frame like the stegosaurus' did back in the day...
-for path in SONGFILES:
-    stream = librosa.stream(path, 1, 1, 1)# https://librosa.org/doc/latest/generated/librosa.stream.html#librosa.stream
-    print(f'SongStream-OBJ for {path}: {stream}')
-    break
-
-
-# put the stego inside the saurus
-math = None
+if args.mode == 'w':
+    stegowriter.run()
+else:
+    stegoread.run()
