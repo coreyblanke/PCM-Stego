@@ -15,13 +15,15 @@ def run(cover="", message="", output="output.wav", **kwargs):
     """
     cover_audio, cover_sr = librosa.load(cover, sr=None)
     message_binary = open(message, mode="rb")
-    print(len(message_binary.read()))
     cover_stft = librosa.stft(cover_audio, hop_length=kwargs["hop_length"])
     cover_modded = librosa.istft(cover_stft, hop_length=kwargs["hop_length"])
     # _plot_power(cover_stft)
     # print(cover_stft[:][0])
     soundfile.write(output, cover_modded, cover_sr)
     bin_start = _get_most_significant_bins(cover_sr, **kwargs)
+
+    max_cap = (cover_stft.shape[0]-bin_start) * cover_stft.shape[1]
+
     return
 
 

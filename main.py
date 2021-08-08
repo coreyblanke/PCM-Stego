@@ -10,9 +10,10 @@ args = parser.parse_args()
 # modify these for different results
 # hop_length and n_fft should be powers of 2 for speed's sake
 # hop_length massively increases overhead as you lower it
-# and really shouldnt be lower than 32 but you get more capacity
-# something something nyquist sampling theorem
-
+#   and really shouldn't be lower than 32 but you get more capacity
+#   something something nyquist sampling theorem
+# amplitude in db from -inf to 0, although realistically something like -80 will capture all usage
+# hz in hz, threshold to start looking for valid frequency bins to modify, lower values may affect cover audio more
 variables = {"hz": 7000,
              "amplitude": -50,
              "offset": 13,
