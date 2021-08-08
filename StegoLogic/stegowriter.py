@@ -3,6 +3,7 @@ import librosa.display
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+from bitstring import Bits
 import soundfile
 
 
@@ -15,15 +16,9 @@ def run(cover="", message="", output="output.wav", **kwargs):
     :return:
     """
     cover_audio, cover_sr = librosa.load(cover, sr=None)
-    message_binary = open(message, mode="rb")
-    message_size = os.stat(message).st_size * 8
-
     cover_stft = librosa.stft(cover_audio, hop_length=kwargs["hop_length"])
-    #cover_modded = librosa.istft(cover_stft, hop_length=kwargs["hop_length"])
     cover_idxes = _get_valid_bins(stft=cover_stft, sr=cover_sr, **kwargs)
-    capacity = (sum([len(val) for val in cover_idxes]))
-    print(f"Attempting to write {message_size // 8} bytes")
-    print(f"Max capacity = {capacity//8} bytes")
+    _write_to_stft(stft=cover_stft, cover_indices=cover_idxes, message=message, **kwargs)
     return
 
 
@@ -50,7 +45,7 @@ def _get_valid_bins(stft, sr, **kwargs):
         for i in range(start_idx, stft.shape[0]):
             if (20 * np.log10(freq_bins[i])) >= kwargs["amplitude"]:
                 valid_in_bin.append(i)
-        valid.append(valid_in_bin)
+        valid.append(sorted(valid_in_bin, reverse=True))  # append reverse sorted so that most inaudible freqs are first
     return valid
 
 
@@ -66,3 +61,23 @@ def _plot_power(stft):
     ax.set_title('Power spectrogram')
     fig.colorbar(img, ax=ax, format="%+2.0f dB")
     plt.show()
+
+
+def _write_to_stft(stft, cover_indices, message, **kwargs):
+    """
+    :param stft: stft to modify
+    :param message: message filename to read it into
+    :return: modified stft
+    """
+    capacity = (sum([len(val) for val in cover_indices]))
+    message_size = os.stat(message).st_size * 8
+
+    # convert payload to bitstring
+    message_file = open(message, mode="rb")
+    message_bits = Bits(message_file)
+    size_bits = Bits(int=message_size, length=kwargs["offset"])
+    if capacity < (message_size + kwargs["offset"]):
+        raise ValueError("Message exceeds capacity for current settings, try messing with them " +
+                         "or changing cover file")
+
+    return

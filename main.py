@@ -17,7 +17,7 @@ args = parser.parse_args()
 # offset, num bits to dedicate to telling size of message
 variables = {"hz": 7000,
              "amplitude": -50,
-             "offset": 13,
+             "offset": 64,
              "hop_length": 128,
              "n_fft": 2048
              }
