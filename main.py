@@ -8,6 +8,11 @@ parser.add_argument('mode', type=str, help="Select read or write mode.", choices
 args = parser.parse_args()
 
 # modify these for different results
+# hop_length and n_fft should be powers of 2 for speed's sake
+# hop_length massively increases overhead as you lower it
+# and really shouldnt be lower than 32 but you get more capacity
+# something something nyquist sampling theorem
+
 variables = {"hz": 7000,
              "amplitude": -50,
              "offset": 13,

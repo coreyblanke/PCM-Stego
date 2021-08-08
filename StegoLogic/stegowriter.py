@@ -14,21 +14,20 @@ def run(cover="", message="", output="output.wav", **kwargs):
     :return:
     """
     cover_audio, cover_sr = librosa.load(cover, sr=None)
-    message_bin = open(message, mode="rb")
+    message_binary = open(message, mode="rb")
+    print(len(message_binary.read()))
     cover_stft = librosa.stft(cover_audio, hop_length=kwargs["hop_length"])
     cover_modded = librosa.istft(cover_stft, hop_length=kwargs["hop_length"])
-    _plot_power(cover_stft)
-    print(cover_stft[:][0])
+    # _plot_power(cover_stft)
+    # print(cover_stft[:][0])
     soundfile.write(output, cover_modded, cover_sr)
-    _get_most_significant_bins(cover_sr, **kwargs)
+    bin_start = _get_most_significant_bins(cover_sr, **kwargs)
     return
-
-
-
 
 
 def _get_most_significant_bins(sr, **kwargs):
     """
+    grabs the starting index of the desired hz threshold
     :param sr: sample rate of audio
     :param kwargs: n_fft, hz
     :return: starting index of all bins>hz
@@ -46,6 +45,10 @@ def _get_most_significant_bins(sr, **kwargs):
 
 
 def _plot_power(stft):
+    """
+    :param stft: stft matrix to plot
+    :return:
+    """
     fig, ax = plt.subplots()
     img = librosa.display.specshow(librosa.amplitude_to_db(stft,
                                                            ref=np.max),
