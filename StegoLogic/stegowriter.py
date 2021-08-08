@@ -18,7 +18,14 @@ def run(cover="", message="", output="output.wav", **kwargs):
     cover_audio, cover_sr = librosa.load(cover, sr=None)
     cover_stft = librosa.stft(cover_audio, hop_length=kwargs["hop_length"])
     cover_idxes = _get_valid_bins(stft=cover_stft, sr=cover_sr, **kwargs)
-    _write_to_stft(stft=cover_stft, cover_indices=cover_idxes, message=message, **kwargs)
+    newstft = _write_to_stft(stft=cover_stft, cover_indices=cover_idxes, message=message, **kwargs)
+    stegaudio = librosa.istft(newstft, hop_length=kwargs["hop_length"])
+    _plot_power(cover_stft-newstft)
+    print(np.sum(cover_stft == newstft))
+    newstft2 = librosa.stft(stegaudio, hop_length=kwargs["hop_length"])
+    print(np.sum(newstft == newstft2))
+    _plot_power(newstft-newstft2)
+    soundfile.write(output, stegaudio, cover_sr)
     return
 
 
@@ -79,5 +86,43 @@ def _write_to_stft(stft, cover_indices, message, **kwargs):
     if capacity < (message_size + kwargs["offset"]):
         raise ValueError("Message exceeds capacity for current settings, try messing with them " +
                          "or changing cover file")
+    # for each bit in size_bits, write to next valid bit
+    i = 0
+    j = 0
+    mag, phase = librosa.magphase(stft)
+    for b in size_bits.bin:
+        operation = np.floor(20 * np.log10(mag[cover_indices[i][j]][i]))%2
+        if operation == 1 and b == '0':
+            print('---',operation)
+            mag[cover_indices[i][j]][i] += np.ceil(mag[cover_indices[i][j]][i] * pow(10, 1 / 20))
+            print('--',operation)
+        elif operation == 0 and b == '1':
+            print('-', operation)
+            mag[cover_indices[i][j]][i] += (mag[cover_indices[i][j]][i] * pow(10, 1 / 20))
+            print('', operation)
+        i, j = _find_next_idx(i, j, cover_indices)
+    for b in message_bits.bin:
+        operation = np.floor(20 * np.log10(mag[cover_indices[i][j]][i]))%2
+        if operation == 1 and b == '0':
+            mag[cover_indices[i][j]][i] += np.ceil(mag[cover_indices[i][j]][i] * pow(10, 1 / 20))
+        elif operation == 0 and b == '1':
+            mag[cover_indices[i][j]][i] += (mag[cover_indices[i][j]][i] * pow(10, 1 / 20))
+        i, j = _find_next_idx(i, j, cover_indices)
 
-    return
+    stft = mag*phase
+    # print(i, j)
+    return stft
+
+
+def _find_next_idx(i, j, cover_indices):
+    # iterate, skipping over invalid values
+    i += 1
+    if i >= len(cover_indices):
+        i = 0
+        j += 1
+    while j >= len(cover_indices[i]):
+        i += 1
+        if i >= len(cover_indices):
+            i = 0
+            j += 1
+    return i, j

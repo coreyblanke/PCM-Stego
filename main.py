@@ -25,7 +25,7 @@ variables = {"hz": 7000,
 if args.mode == 'w':
     #cover = input("Path to cover file: ")
     cover = "ExampleData\\jazz.wav"
-    message = "ExampleData\\message.txt"
+    message = "ExampleData\\1.txt"
     #message = input("Path to message file: ")
     stegowriter.run(cover=cover, message=message, **variables)
 else:
