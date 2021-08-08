@@ -14,10 +14,11 @@ args = parser.parse_args()
 #   something something nyquist sampling theorem
 # amplitude in db from -inf to 0, although realistically something like -80 will capture all usage
 # hz in hz, threshold to start looking for valid frequency bins to modify, lower values may affect cover audio more
+# offset, num bits to dedicate to telling size of message
 variables = {"hz": 7000,
              "amplitude": -50,
              "offset": 13,
-             "hop_length": 64,
+             "hop_length": 128,
              "n_fft": 2048
              }
 

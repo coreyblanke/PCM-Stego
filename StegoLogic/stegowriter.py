@@ -2,6 +2,7 @@ import librosa
 import librosa.display
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 import soundfile
 
 
@@ -15,11 +16,14 @@ def run(cover="", message="", output="output.wav", **kwargs):
     """
     cover_audio, cover_sr = librosa.load(cover, sr=None)
     message_binary = open(message, mode="rb")
+    message_size = os.stat(message).st_size * 8
+
     cover_stft = librosa.stft(cover_audio, hop_length=kwargs["hop_length"])
-    cover_modded = librosa.istft(cover_stft, hop_length=kwargs["hop_length"])
-    # _plot_power(cover_stft)
-    # print(cover_stft[:][0])
-    soundfile.write(output, cover_modded, cover_sr)
+    #cover_modded = librosa.istft(cover_stft, hop_length=kwargs["hop_length"])
+    cover_idxes = _get_valid_bins(stft=cover_stft, sr=cover_sr, **kwargs)
+    capacity = (sum([len(val) for val in cover_idxes]))
+    print(f"Attempting to write {message_size // 8} bytes")
+    print(f"Max capacity = {capacity//8} bytes")
     return
 
 
@@ -41,10 +45,10 @@ def _get_valid_bins(stft, sr, **kwargs):
     else:
         raise ValueError("hz parameter must be lower than the maximum frequency bin of stft")
     valid = []
-    for freq_bins in stft.T:
+    for freq_bins in stft.T:  # go thru each frequency bin and find the idxs of all the ones that are < amplitude
         valid_in_bin = []
         for i in range(start_idx, stft.shape[0]):
-            if librosa.amplitude_to_db(freq_bins[i]) >= kwargs["amplitude"]:
+            if (20 * np.log10(freq_bins[i])) >= kwargs["amplitude"]:
                 valid_in_bin.append(i)
         valid.append(valid_in_bin)
     return valid
