@@ -20,19 +20,16 @@ def run(cover="", message="", output="output.wav", **kwargs):
     # _plot_power(cover_stft)
     # print(cover_stft[:][0])
     soundfile.write(output, cover_modded, cover_sr)
-    bin_start = _get_most_significant_bins(cover_sr, **kwargs)
-
-    max_cap = (cover_stft.shape[0]-bin_start) * cover_stft.shape[1]
-
     return
 
 
-def _get_most_significant_bins(sr, **kwargs):
+def _get_valid_bins(stft, sr, **kwargs):
     """
     grabs the starting index of the desired hz threshold
+    :param stft: stft to grab from
     :param sr: sample rate of audio
     :param kwargs: n_fft, hz
-    :return: starting index of all bins>hz
+    :return: list of all valid indexes for each bin in the stft
     """
     bins = librosa.fft_frequencies(sr=sr, n_fft=kwargs["n_fft"])
     start_idx = 0
@@ -43,7 +40,14 @@ def _get_most_significant_bins(sr, **kwargs):
             break
     else:
         raise ValueError("hz parameter must be lower than the maximum frequency bin of stft")
-    return start_idx
+    valid = []
+    for freq_bins in stft.T:
+        valid_in_bin = []
+        for i in range(start_idx, stft.shape[0]):
+            if librosa.amplitude_to_db(freq_bins[i]) >= kwargs["amplitude"]:
+                valid_in_bin.append(i)
+        valid.append(valid_in_bin)
+    return valid
 
 
 def _plot_power(stft):
