@@ -56,7 +56,7 @@ def _get_valid_bins(stft, sr, **kwargs):
         # idxs of all the ones that are < amplitude
         valid_in_bin = []
         for i in range(start_idx, stft.shape[0]):
-            if 20*np.log10(freq_bins[i]) >= kwargs["amplitude"]:
+            if 20 * np.log10(freq_bins[i]) >= kwargs["amplitude"]:
                 valid_in_bin.append(i)
         valid.append(valid_in_bin)
 
@@ -91,6 +91,7 @@ def _write_to_stft(stft, cover_indices, message, **kwargs):
     message_bits = Bits(message_file)
     size_bits = Bits(int=message_size, length=kwargs["offset"])
     flipped = 0
+    print(f"Capacity with current settings is {capacity}")
     if capacity < (message_size + kwargs["offset"]):
         raise ValueError(f"Message of size {message_size + kwargs['offset']} bits exceeds capacity {capacity} bits"
                          f" for current settings, "
@@ -101,7 +102,8 @@ def _write_to_stft(stft, cover_indices, message, **kwargs):
     j = 0
     # mag, phase = librosa.magphase(stft)
     mag = stft
-    for b in tqdm(size_bits.bin, "Writing size"):
+    it = tqdm(size_bits.bin, "Writing size")
+    for b in it:
         row = cover_indices[i][j]
         col = i
         db = librosa.amplitude_to_db([mag[row][col]])[0]
@@ -114,7 +116,9 @@ def _write_to_stft(stft, cover_indices, message, **kwargs):
             mag[row][col] = librosa.db_to_amplitude(db + 10)
         i, j = _find_next_idx(i, j, cover_indices)
 
-    for b in tqdm(message_bits.bin, "Writing message"):
+    it2 = tqdm(message_bits.bin, "Writing message")
+
+    for b in it2:
         row = cover_indices[i][j]
         col = i
         db = librosa.amplitude_to_db([mag[row][col]])[0]
@@ -127,8 +131,7 @@ def _write_to_stft(stft, cover_indices, message, **kwargs):
             mag[row][col] = librosa.db_to_amplitude(db + 10)
         i, j = _find_next_idx(i, j, cover_indices)
     # stft = mag * phase
-    print(f"{flipped} amplitude modifications to encode {(message_size+kwargs['offset']) // 8} bytes of information.")
-    print(f"Capacity with current settings is {capacity}")
+    print(f"{flipped} amplitude modifications to encode {(message_size + kwargs['offset']) // 8} bytes of information.")
     return stft
 
 
