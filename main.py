@@ -4,7 +4,9 @@ from StegoLogic import stegoread, stegowriter
 # select read mode or write mode
 parser = argparse.ArgumentParser(description="Does some steganography.")
 parser.add_argument('mode', type=str, help="Select read or write mode.", choices=['r', 'w'])
-
+# NOTE: WRITE MODE IS THE ONLY ONE WITH A SEMI FUNCTIONAL RESULT
+# WRITE MODE DEMOS BOTH READ AND WRITE (see final report for details)
+# TODO: mention the thing with write mode in final report
 args = parser.parse_args()
 
 # modify these for different results
@@ -17,15 +19,15 @@ args = parser.parse_args()
 # offset, num bits to dedicate to telling size of message
 # x_ratio, write only in the first x_ratio % of the image
 # reader_thresh, tell the reader what counts as a written bit (ideally a little lower than writer)
-variables = {"hz": 7000,
-             "amplitude": -50,
+variables = {"hz": 900,
+             "amplitude": -12,
              "offset": 64,
              "hop_length": 64,
              "n_fft": 2048,
              "win_length": 2048,
              "center": True,
              "x_ratio": .95,
-             "reader_thresh": -50.1
+             "reader_thresh": -12
              }
 
 if args.mode == 'w':
@@ -35,4 +37,5 @@ if args.mode == 'w':
     #message = input("Path to message file: ")
     stegowriter.run(cover=cover, message=message, **variables)
 else:
-    stegoread.run(**variables)
+    stegaudio = "output.wav"
+    stegoread.run(stegaudio, **variables)

@@ -6,6 +6,8 @@ import os
 from bitstring import Bits
 import soundfile
 from tqdm import tqdm
+import time
+from StegoLogic import stegoread
 
 """
 In a paragraph: 
@@ -34,10 +36,13 @@ def run(cover="", message="", output="output.wav", **kwargs):
     m, p = librosa.magphase(cover_stft)
     cover_idxes = _get_valid_bins(stft=m, sr=cover_sr, **kwargs)
     newstft = _write_to_stft(stft=m, cover_indices=cover_idxes, message=message, **kwargs)
+    payload = stegoread._get_payload(newstft, cover_idxes, **kwargs)
+    stegoread._write_payload(payload)
     newstft = newstft * p
     stegaudio = librosa.istft(newstft, **my_args)
     soundfile.write(output, stegaudio, cover_sr)
     print(f"{output} successfully generated.")
+
     return
 
 
@@ -92,6 +97,8 @@ def _write_to_stft(stft, cover_indices, message, **kwargs):
     :return: modified stft
     """
     capacity = (sum([len(val) for val in cover_indices]))
+    print(f"Capacity with current settings is {capacity} bits")
+    time.sleep(10e-2)  # wait a few ms cause tqdm and print mess w/ each other
     message_size = os.stat(message).st_size * 8
 
     # convert payload to bitstring
@@ -99,7 +106,7 @@ def _write_to_stft(stft, cover_indices, message, **kwargs):
     message_bits = Bits(message_file)
     size_bits = Bits(int=message_size, length=kwargs["offset"])
     flipped = 0
-    print(f"Capacity with current settings is {capacity}")
+
     if capacity < (message_size + kwargs["offset"]):
         raise ValueError(f"Message of size {message_size + kwargs['offset']} bits exceeds capacity {capacity} bits"
                          f" for current settings, "
@@ -118,10 +125,10 @@ def _write_to_stft(stft, cover_indices, message, **kwargs):
         op = np.floor(db) % 2
         if b == "1" and int(op) == 0:
             flipped += 1
-            mag[row][col] = librosa.db_to_amplitude(db + 10)
+            mag[row][col] = librosa.db_to_amplitude(db + 1)
         elif b == "0" and int(op) == 1:
             flipped += 1
-            mag[row][col] = librosa.db_to_amplitude(db + 10)
+            mag[row][col] = librosa.db_to_amplitude(db + 1)
         i, j = _find_next_idx(i, j, cover_indices)
 
     it2 = tqdm(message_bits.bin, "Writing message")
@@ -133,10 +140,10 @@ def _write_to_stft(stft, cover_indices, message, **kwargs):
         op = np.floor(db) % 2
         if b == "1" and int(op) == 0:
             flipped += 1
-            mag[row][col] = librosa.db_to_amplitude(db + 10)
+            mag[row][col] = librosa.db_to_amplitude(db + 1)
         elif b == "0" and int(op) == 1:
             flipped += 1
-            mag[row][col] = librosa.db_to_amplitude(db + 10)
+            mag[row][col] = librosa.db_to_amplitude(db + 1)
         i, j = _find_next_idx(i, j, cover_indices)
     # stft = mag * phase
     print(f"{flipped} amplitude modifications to encode {(message_size + kwargs['offset']) // 8} bytes of information.")
