@@ -7,6 +7,14 @@ from bitstring import Bits
 import soundfile
 from tqdm import tqdm
 
+"""
+In a paragraph: 
+takes the stft of a wave, seperates it into phase and magnitude.
+modifies the magnitude and then recombines it with the phase
+creates new wave by taking the inverse stft of the recombined stft
+writes it onto computer
+"""
+
 
 def run(cover="", message="", output="output.wav", **kwargs):
     """
