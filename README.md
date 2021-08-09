@@ -6,5 +6,5 @@ Download the Kaggle Dataset (1000 songs): https://www.kaggle.com/andradaolteanu/
 (Or you can use the provided example file, 1.txt is a randomly generated file 1mb in length); 
 Install pipenv: https://pypi.org/project/pipenv/;  
 cd into directory containing main.py; 
-run >>pipenv install && pipenv run python main.py w; 
+use the command "pipenv install && pipenv run python main.py w"; 
 enjoy the demo;
