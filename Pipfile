@@ -8,6 +8,8 @@ librosa="*"
 matplotlib='*'
 numpy="*"
 bitstring="*"
+tqdm = "*"
+
 [dev-packages]
 
 [requires]

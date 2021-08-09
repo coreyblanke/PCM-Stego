@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "ea91f44cf360c77934ac1a461ca97c669dd1e29522b36424709803d2e4de11ba"
+            "sha256": "988e545288fd4459be1e07d589069ce3192f767da70637163858ddaa1154283a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -102,6 +102,14 @@
             ],
             "markers": "python_version >= '3'",
             "version": "==2.0.4"
+        },
+        "colorama": {
+            "hashes": [
+                "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b",
+                "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"
+            ],
+            "markers": "platform_system == 'Windows'",
+            "version": "==0.4.4"
         },
         "cycler": {
             "hashes": [
@@ -481,6 +489,14 @@
             ],
             "markers": "python_version >= '3.6'",
             "version": "==2.2.0"
+        },
+        "tqdm": {
+            "hashes": [
+                "sha256:3642d483b558eec80d3c831e23953582c34d7e4540db86d9e5ed9dad238dabc6",
+                "sha256:706dea48ee05ba16e936ee91cb3791cd2ea6da348a0e50b46863ff4363ff4340"
+            ],
+            "index": "pypi",
+            "version": "==4.62.0"
         },
         "urllib3": {
             "hashes": [
